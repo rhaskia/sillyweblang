@@ -1,0 +1,3 @@
+- heavily compress HTML trees
+- adverbs and stuff -> copy some stuff from APL probably
+- RTL operators
