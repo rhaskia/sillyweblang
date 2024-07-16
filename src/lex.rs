@@ -1,3 +1,8 @@
+pub fn lex(program: String) -> Vec<Token> {
+    Lexer { program, index: 0 }.lex()
+}
+
+#[derive(Debug)]
 enum Token {
     OpenBrace,
     CloseBrace,
@@ -25,6 +30,10 @@ impl Lexer {
            tokens.push(match ch {
                '[' => Token::OpenBracket,
                ']' => Token::CloseBracket,
+               '(' => Token::OpenParen,
+               ')' => Token::CloseParen,
+               '{' => Token::OpenBrace,
+               '}' => Token::CloseBrace,
                '"' => Token::Str(self.string()),
                _ => Token::Whitespace,
            })
@@ -33,7 +42,12 @@ impl Lexer {
     } 
 
     pub fn string(&mut self) -> String {
-        String::new()
+        let mut s = String::new();
+        while let Some(ch) = self.next() {
+            if ch == '"' { break }
+            s.push(ch);
+        }
+        s
     } 
 
     pub fn next(&mut self) -> Option<char> {
