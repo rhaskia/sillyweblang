@@ -13,7 +13,7 @@ pub enum Token {
     CloseBracket,
     OpenParen,
     CloseParen,
-    Glyph(Glyph),
+    Operator(Glyph),
     Number(u64),
     Str(String),
     Name(String),
@@ -39,7 +39,7 @@ impl Lexer {
                '}' => self.push(Token::CloseBrace),
                '"' => self.string(),
                _ if ch.is_alphabetic() => self.name(ch),
-               _ if ch.is_glyph() => self.push(Token::Glyph(ch.to_glyph())),
+               _ if ch.is_glyph() => self.push(Token::Operator(ch.to_glyph())),
                _ if ch.is_numeric() => self.number(ch),
                _ => self.push(Token::Whitespace),
            }
