@@ -1,10 +1,10 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Glyph {
     Arrow(Arrow),
     Unknown(char)
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Arrow {
     Up, Down, Left, Right,
     Vertical, Horizontal,

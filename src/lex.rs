@@ -14,10 +14,11 @@ pub enum Token {
     OpenParen,
     CloseParen,
     Operator(Glyph),
-    Number(u64),
+    Number(i64),
     Str(String),
-    Name(String),
+    Var(String),
     Whitespace,
+    Omega,
 }
 
 struct Lexer {
@@ -31,17 +32,18 @@ impl Lexer {
     pub fn lex(&mut self) -> Vec<Sp<Token>> {
         while let Some(ch) = self.next() {
            match ch {
-               '[' => self.push(Token::OpenBracket),
-               ']' => self.push(Token::CloseBracket),
-               '(' => self.push(Token::OpenParen),
-               ')' => self.push(Token::CloseParen),
-               '{' => self.push(Token::OpenBrace),
-               '}' => self.push(Token::CloseBrace),
+               ']' => self.push(Token::OpenBracket),
+               '[' => self.push(Token::CloseBracket),
+               ')' => self.push(Token::OpenParen),
+               '(' => self.push(Token::CloseParen),
+               '}' => self.push(Token::OpenBrace),
+               '{' => self.push(Token::CloseBrace),
                '"' => self.string(),
+               '⍵' => self.push(Token::Omega),
                _ if ch.is_alphabetic() => self.name(ch),
                _ if ch.is_glyph() => self.push(Token::Operator(ch.to_glyph())),
                _ if ch.is_numeric() => self.number(ch),
-               _ => self.push(Token::Whitespace),
+               _ => {},
            }
         } 
 
@@ -58,7 +60,7 @@ impl Lexer {
             if !ch.is_alphabetic() { break }
             s.push(self.next().unwrap());
         }
-        self.push(Token::Name(s))
+        self.push(Token::Var(s))
     } 
 
     pub fn number(&mut self, ch: char) {

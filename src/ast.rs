@@ -1,13 +1,20 @@
-use crates::primitives::Glyph as Operator;
+use crate::primitives::Glyph as Operator;
+use crate::span::Span as Sp;
 
-enum Node {
-    Binary(Box<Node>, Operator, Box<Node>),
+#[derive(Debug, Clone)]
+pub enum Node {
+    Dyad(Box<Sp<Node>>, Operator, Box<Sp<Node>>),
+    Monad(Operator, Box<Sp<Node>>),
+    MoOp(Operator, Box<Sp<Node>>),
     Literal(Literal),
     Element(String),
     Variable(String),
+    Closure(Vec<Sp<Node>>),
+    Omega,
 }
 
-enum Literal {
+#[derive(Debug, Clone)]
+pub enum Literal {
     Str(String),
     Num(i64),
     Float(f64),
