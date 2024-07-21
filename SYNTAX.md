@@ -11,3 +11,6 @@ then are styled using the following characters
 
 
 d↔200↕100\⇡⍳10
+
+value? monop? operator value
+here the ? represents a maybe value

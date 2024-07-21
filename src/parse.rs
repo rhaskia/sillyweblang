@@ -24,9 +24,10 @@ impl Parser {
     pub fn statement(&mut self) -> Result<Sp<Node>, Error> {
         let node = parse_array()?; 
 
-        while let Token::Glyph(_) == self.peek() {
+    }
 
-        }
+    pub fn parse_array(&mut self) {
+        while self.peek().is_value()
     }
 
     pub fn expr(&mut self) -> Result<Sp<Node>, Error> {

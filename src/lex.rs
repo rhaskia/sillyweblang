@@ -17,7 +17,6 @@ pub enum Token {
     Number(i64),
     Str(String),
     Var(String),
-    Whitespace,
     Omega,
 }
 
