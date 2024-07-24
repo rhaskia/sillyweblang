@@ -1,3 +1,5 @@
+use std::fmt::{Display, Write};
+
 #[derive(Debug, Clone, Copy)]
 pub enum Glyph {
     Arrow(Arrow),
@@ -25,6 +27,28 @@ impl From<char> for Glyph {
     }
 }
 
+impl From<Glyph> for char {
+    fn from(value: Glyph) -> Self {
+        match value {
+            Glyph::Arrow(arr) => char::from(arr),
+            Glyph::Unknown(ch) => ch,
+        }
+    }
+}
+
+impl From<Arrow> for char {
+    fn from(value: Arrow) -> Self {
+        match value {
+            Arrow::Up => '↑',
+            Arrow::Down => '↓',
+            Arrow::Left => '←',
+            Arrow::Right => '→',
+            Arrow::Vertical => '↕',
+            Arrow::Horizontal => '↔',
+        }
+    }
+}
+
 pub trait ToGlyph {
     fn to_glyph(self) -> Glyph;
     fn is_glyph(self) -> bool;
@@ -40,5 +64,11 @@ impl ToGlyph for char {
             Glyph::Unknown(_) => false,
             _ => true,
         }
+    }
+}
+
+impl Display for Glyph {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_char(char::from(*self))
     }
 }

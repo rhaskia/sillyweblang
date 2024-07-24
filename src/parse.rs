@@ -18,20 +18,14 @@ struct Parser {
 
 impl Parser {
     pub fn parse(&mut self) -> Result<Sp<Node>, Error> {
-        self.statement()
-    }
-
-    pub fn statement(&mut self) -> Result<Sp<Node>, Error> {
-        let node = parse_array()?; 
-
-    }
-
-    pub fn parse_array(&mut self) {
-        while self.peek().is_value()
+        self.expr()
     }
 
     pub fn expr(&mut self) -> Result<Sp<Node>, Error> {
-        let left = self.simple()?;
+        let left = self.literal()?;
+        println!("{left:?}");
+
+        if self.index == 0 { return Ok(left); }
 
         if let Token::Operator(op) = *self.next()? {
             let right = self.expr()?;
@@ -53,7 +47,24 @@ impl Parser {
         Ok(left)
     }
 
-//    pub fn parse_array() -> Result<Sp<Node>, Error> {}
+    pub fn literal(&mut self) -> Result<Sp<Node>, Error> {
+        let first = self.simple()?;
+        let mut array = vec![first];
+
+        if self.index != 0 {
+            while self.peek()?.is_value() {
+                println!("{:?}", self.peek());
+                array.push(self.simple()?);
+            }
+        }
+
+        if array.len() == 1 { Ok(array[0].clone()) }
+        else {
+            let start = array[0].start;
+            let end = array.last().unwrap().end;
+            Ok(Sp::new(Node::Array(array), start, end))
+        }
+    }
 
     pub fn simple(&mut self) -> Result<Sp<Node>, Error> {
         let Sp { value, start, end } = self.next()?;
@@ -90,7 +101,12 @@ impl Parser {
     }
 
     pub fn next(&mut self) -> Result<Sp<Token>, Error> {
+        if self.index == 0 { return Err(String::from("EOF reached")); }
         self.index -= 1;
         self.tokens.get(self.index).ok_or(String::from("EOF reached")).cloned()
+    }
+
+    pub fn peek(&mut self) -> Result<Sp<Token>, Error> {
+        self.tokens.get(self.index - 1).ok_or(String::from("EOF reached")).cloned()
     }
 }

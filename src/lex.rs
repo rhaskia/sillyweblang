@@ -20,6 +20,15 @@ pub enum Token {
     Omega,
 }
 
+impl Token {
+    pub fn is_value(&self) -> bool {
+        match self {
+            Self::Number(_) | Self::Str(_) | Self::Omega | Self::Var(_) => true,
+            _ => false
+        }
+    }
+}
+
 struct Lexer {
     program: String,
     index: usize,
