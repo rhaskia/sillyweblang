@@ -8,8 +8,8 @@ pub enum Node {
     Monad(Operator, Box<Sp<Node>>),
     MoOp(Operator, Box<Sp<Node>>),
     Literal(Literal),
-    Element(String),
     Variable(String),
+    Children(Box<Sp<Node>>),
     Closure(Vec<Sp<Node>>),
     Array(Vec<Sp<Node>>),
     Omega,
@@ -26,14 +26,14 @@ pub enum Literal {
 impl Debug for Node {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Dyad(l, op, r) => write!(f, "({l:?} {op} {r:?})"),
+            Self::Dyad(l, op, r) => write!(f, "({r:?} {op} {l:?})"),
             Self::Monad(op, r) => write!(f, "({op} {r:?})"),
             Self::MoOp(arg0, arg1) => f.debug_tuple("MoOp").field(arg0).field(arg1).finish(),
             Self::Literal(lit) => lit.fmt(f),
-            Self::Element(el) => f.write_str(el),
             Self::Variable(name) => f.write_str(name),
             Self::Closure(arg0) => f.debug_tuple("Closure").field(arg0).finish(),
             Self::Array(arr) => write!(f, "{arr:?}"),
+            Self::Children(ch) => write!(f, "[{ch:?}]"),
             Self::Omega => write!(f, "⍵"),
         }
     }

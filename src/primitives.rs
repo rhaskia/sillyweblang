@@ -3,6 +3,7 @@ use std::fmt::{Display, Write};
 #[derive(Debug, Clone, Copy)]
 pub enum Glyph {
     Arrow(Arrow),
+    Bracket,
     Unknown(char)
 }
 
@@ -21,6 +22,7 @@ impl From<char> for Glyph {
             '→' => Glyph::Arrow(Arrow::Right),
             '↔' => Glyph::Arrow(Arrow::Horizontal),
             '↕' => Glyph::Arrow(Arrow::Vertical),
+            '[' => Glyph::Bracket,
 
             _ => Glyph::Unknown(ch)
         }
@@ -31,6 +33,7 @@ impl From<Glyph> for char {
     fn from(value: Glyph) -> Self {
         match value {
             Glyph::Arrow(arr) => char::from(arr),
+            Glyph::Bracket => '[',
             Glyph::Unknown(ch) => ch,
         }
     }

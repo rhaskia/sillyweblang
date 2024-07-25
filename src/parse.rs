@@ -23,7 +23,6 @@ impl Parser {
 
     pub fn expr(&mut self) -> Result<Sp<Node>, Error> {
         let left = self.literal()?;
-        println!("{left:?}");
 
         if self.index == 0 { return Ok(left); }
 
@@ -53,7 +52,6 @@ impl Parser {
 
         if self.index != 0 {
             while self.peek()?.is_value() {
-                println!("{:?}", self.peek());
                 array.push(self.simple()?);
             }
         }
@@ -74,13 +72,19 @@ impl Parser {
             Token::Var(n) => Sp::new(Node::Variable(n), start, end),
             Token::OpenBrace => self.closure(start)?,
             Token::Omega => Sp::new(Node::Omega, start, end),
+            Token::OpenParen => self.closure(start)?,
+            // Token::OpenBracket => { 
+            //     let children = Box::new(Sp::new(Node::Children(Box::new(self.closure(start)?)), start, end));
+            //     let expr = Box::new(self.expr()?);
+            //    Sp::new(Node::Dyad(expr, Operator::Children, children), start, end)
+            // }
             _ => panic!("{value:?}"),
         })
     }
 
     pub fn closure(&mut self, start: Position) -> Result<Sp<Node>, Error> {
         let expr = self.expr()?;
-        self.next()?;
+        //println!("{:?}", self.next()?);
         Ok(expr)
     }
 

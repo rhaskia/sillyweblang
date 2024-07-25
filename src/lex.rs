@@ -40,8 +40,8 @@ impl Lexer {
     pub fn lex(&mut self) -> Vec<Sp<Token>> {
         while let Some(ch) = self.next() {
            match ch {
-               ']' => self.push(Token::OpenBracket),
-               '[' => self.push(Token::CloseBracket),
+               //']' => self.push(Token::OpenBracket),
+               //'[' => self.push(Token::CloseBracket),
                ')' => self.push(Token::OpenParen),
                '(' => self.push(Token::CloseParen),
                '}' => self.push(Token::OpenBrace),
