@@ -100,6 +100,7 @@ impl Parser {
     
     pub fn op_order(operator: &Operator) -> u8 {
         match operator {
+            Operator::Arithmetic(_) => 1,
             _ => 0,
         }
     }

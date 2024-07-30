@@ -1,56 +1,72 @@
 use std::fmt::{Display, Write};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Glyph {
     Arrow(Arrow),
+    Arithmetic(Arithmetic),
     Bracket,
-    Unknown(char)
+    Unknown(char),
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Arrow {
     Up, Down, Left, Right,
     Vertical, Horizontal,
 }
 
-impl From<char> for Glyph {
-    fn from(ch: char) -> Glyph {
-        match ch {
-            '↑' => Glyph::Arrow(Arrow::Up),
-            '↓' => Glyph::Arrow(Arrow::Down),
-            '←' => Glyph::Arrow(Arrow::Left),
-            '→' => Glyph::Arrow(Arrow::Right),
-            '↔' => Glyph::Arrow(Arrow::Horizontal),
-            '↕' => Glyph::Arrow(Arrow::Vertical),
-            '[' => Glyph::Bracket,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Arithmetic {
+    Plus, Minus, Multiply, Divide
+}
 
-            _ => Glyph::Unknown(ch)
+macro_rules! glyph_chars {
+    ($($char:tt => $glyph:expr => $value:literal),*) => {
+        impl From<char> for Glyph {
+            fn from(ch: char) -> Glyph {
+                match ch {
+                    $(
+                        $char => $glyph, 
+                    )*
+                    _ => Glyph::Unknown(ch)
+                }
+            }
+        }
+
+        impl From<Glyph> for char {
+            fn from(gl: Glyph) -> char {
+                $(
+                    if gl == $glyph { return $char; }
+                )*
+                return ' ';
+            }
+        }
+
+        impl Glyph {
+            fn to_css_value(&self) -> String {
+                $(
+                    if *self == $glyph { return $value.to_string(); }
+                )*
+                String::new()
+            }
         }
     }
 }
 
-impl From<Glyph> for char {
-    fn from(value: Glyph) -> Self {
-        match value {
-            Glyph::Arrow(arr) => char::from(arr),
-            Glyph::Bracket => '[',
-            Glyph::Unknown(ch) => ch,
-        }
-    }
+glyph_chars! {
+    '↑' => Glyph::Arrow(Arrow::Up) => "bottom",
+    '↓' => Glyph::Arrow(Arrow::Down) => "top",
+    '←' => Glyph::Arrow(Arrow::Left) => "left",
+    '→' => Glyph::Arrow(Arrow::Right) => "right",
+    '↔' => Glyph::Arrow(Arrow::Horizontal) => "width",
+    '↕' => Glyph::Arrow(Arrow::Vertical) => "height",
+    '[' => Glyph::Bracket => "",
+
+    '+' => Glyph::Arithmetic(Arithmetic::Plus) => "plus",
+    '-' => Glyph::Arithmetic(Arithmetic::Minus) => "minus",
+    'x' => Glyph::Arithmetic(Arithmetic::Multiply) => "multiply",
+    '/' => Glyph::Arithmetic(Arithmetic::Divide) => "height"
 }
 
-impl From<Arrow> for char {
-    fn from(value: Arrow) -> Self {
-        match value {
-            Arrow::Up => '↑',
-            Arrow::Down => '↓',
-            Arrow::Left => '←',
-            Arrow::Right => '→',
-            Arrow::Vertical => '↕',
-            Arrow::Horizontal => '↔',
-        }
-    }
-}
 
 pub trait ToGlyph {
     fn to_glyph(self) -> Glyph;

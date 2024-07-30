@@ -53,7 +53,8 @@ impl Compiler {
                Arrow::Vertical => "height",
             }, left)),
             Operator::Bracket => Value::El(right.as_el().with_children(left.as_el_arr())),
-            _ => panic!()
+            Operator::Arithmetic(op) => Self::eval_arithmetic(left, op, right),
+            _ => panic!("{op:?}")
         }
     } 
 
