@@ -43,15 +43,20 @@ impl Element {
 
     pub fn to_html(&self, mut depth: usize) -> String {
         depth += 1;
-        format!("{2}<{0} {3}>\n{1}\n{2}</{0}>", 
-            self.tag, 
-            self.children.iter()
-                .map(|c| c.to_html(depth))
-                .collect::<Vec<String>>()
-                .join("\n"),
-            "    ".repeat(depth - 1),
-            self.css(),
-        )
+        let indent = "    ".repeat(depth - 1);
+        if self.children.is_empty() {
+            format!("{0} <{1} {2}/>", indent, self.tag, self.css())
+        } else {
+            format!("{0}<{1} {2}>\n{3}\n{0}</{1}>", 
+                indent,
+                self.tag, 
+                self.css(),
+                self.children.iter()
+                    .map(|c| c.to_html(depth))
+                    .collect::<Vec<String>>()
+                    .join("\n"),
+            )
+        }
     } 
 
     pub fn css(&self) -> String {
