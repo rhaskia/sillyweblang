@@ -42,11 +42,11 @@ macro_rules! glyph_chars {
         }
 
         impl Glyph {
-            fn to_css_value(&self) -> String {
+            pub fn value(&self) -> &str {
                 $(
-                    if *self == $glyph { return $value.to_string(); }
+                    if *self == $glyph { return $value; }
                 )*
-                String::new()
+                ""
             }
         }
     }

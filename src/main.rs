@@ -9,6 +9,7 @@ mod element;
 fn main() {
     let program = include_str!("../example.web").to_string();
 
+    println!("{program}");
     let tokens = lex::lex(program);
     println!("{:?}", tokens);
     let ast = parse::parse(tokens);

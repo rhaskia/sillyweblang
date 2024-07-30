@@ -43,15 +43,20 @@ impl Element {
 
     pub fn to_html(&self, mut depth: usize) -> String {
         depth += 1;
-        format!("{2}<{0}>\n{1}\n{2}</{0}>", 
+        format!("{2}<{0} {3}>\n{1}\n{2}</{0}>", 
             self.tag, 
             self.children.iter()
                 .map(|c| c.to_html(depth))
                 .collect::<Vec<String>>()
                 .join("\n"),
             "    ".repeat(depth - 1),
+            self.css(),
         )
     } 
+
+    pub fn css(&self) -> String {
+        self.css_attr.iter().map(|(k, v)| format!("{k} = \"{}\"", v.to_string())).collect::<Vec<String>>().join(" ")
+    }
 }
 
 impl ToString for Element {
