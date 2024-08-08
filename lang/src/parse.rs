@@ -1,5 +1,5 @@
 use crate::lex::Token;
-use crate::primitives::Glyph as Operator;
+use crate::primitives::{Glyph as Operator, GlyphType};
 use crate::ast::{Node, Literal};
 use crate::span::Span as Sp;
 use crate::span::Position;
@@ -99,8 +99,8 @@ impl Parser {
     }
     
     pub fn op_order(operator: &Operator) -> u8 {
-        match operator {
-            Operator::Arithmetic(_) => 1,
+        match operator.glyph_type {
+            GlyphType::Math => 1,
             _ => 0,
         }
     }

@@ -5,7 +5,7 @@ mod ast;
 mod span;
 mod compiler;
 mod element;
-pub use primitives::glyph_list;
+pub use primitives::{GlyphLoader, GlyphInfo};
 
 type Error = span::Span<String>;
 

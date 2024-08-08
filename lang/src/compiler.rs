@@ -1,74 +1,75 @@
 use std::ops::Add;
-
 use crate::element::Element;
 use crate::span::Span as Sp;
-use crate::primitives::{Glyph as Operator, Arrow, Arithmetic};
+use crate::primitives::{Glyph as Operator, GlyphType, GlyphLoader};
 use crate::ast::{Node, Literal};
 
 pub fn compile(tree: Node) -> Element {
-    let dom = Compiler { tree }.compile();
+    let dom = Compiler { tree, glyphs: GlyphLoader::setup() }.compile();
     println!("{dom:?}");
     dom
 }
 
 struct Compiler {
     tree: Node,
+    glyphs: GlyphLoader,
 }
 
 impl Compiler {
     pub fn compile(&mut self) -> Element {
         let mut root = Element::new("html");
 
-        root.add(Self::eval(self.tree.clone()).as_el());
+        root.add(self.eval(self.tree.clone()).as_el());
 
         root
     }
 
-    pub fn eval(node: Node) -> Value {
+    pub fn eval(&self, node: Node) -> Value {
         match node {
-            Node::Dyad(l, op, r) => Self::eval_dyad(*l, op, *r),
-            Node::Monad(op, l) => Self::eval_monad(op, *l),
+            Node::Dyad(l, op, r) => self.eval_dyad(*l, op, *r),
+            Node::Monad(op, l) => self.eval_monad(op, *l),
             Node::Literal(lit) => match lit {
                 Literal::Str(s) => Value::Str(s),
                 Literal::Num(n) => Value::Num(n),
                 Literal::Float(f) => Value::Num(f as i64),
                 _ => unreachable!(),
             } 
-            Node::Array(a) => Value::Array(a.into_iter().map(|n| Self::eval(n.value)).collect()),
+            Node::Array(a) => Value::Array(a.into_iter().map(|n| self.eval(n.value)).collect()),
             Node::Variable(name) => Value::El(Element::new(&name)),
             _ => panic!("{node:?}"),
         }
 
     }
 
-    pub fn eval_dyad(left: Sp<Node>, op: Operator, right: Sp<Node>) -> Value {
-        let left = Self::eval(left.value);
-        let right = Self::eval(right.value);
+    pub fn eval_dyad(&self, left: Sp<Node>, op: Operator, right: Sp<Node>) -> Value {
+        let left = self.eval(left.value);
+        let right = self.eval(right.value);
 
-        match op {
-            Operator::Arrow(arr) => Value::El(right.as_el().with_attr(op.value(), left)),
-            Operator::Bracket => Value::El(right.as_el().with_children(left.as_el_arr())),
-            Operator::Arithmetic(op) => Self::eval_arithmetic(left, op, right),
+        match op.glyph_type {
+            GlyphType::Css => Value::El(right.as_el().with_attr(&self.glyphs[&op.glyph].attr, left)),
+            GlyphType::Bracket => Value::El(right.as_el().with_children(left.as_el_arr())),
+            GlyphType::Math => Self::eval_arithmetic(left, op.glyph, right),
             _ => panic!("{op:?}")
         }
     } 
 
-    pub fn eval_monad(op: Operator, left: Sp<Node>) -> Value {
-        let left = Self::eval(left.value);
+    pub fn eval_monad(&self, op: Operator, left: Sp<Node>) -> Value {
+        let left = self.eval(left.value);
 
         match op {
             _ => panic!()
         }
     } 
     
-    pub fn eval_arithmetic(left: Value, op: Arithmetic, right: Value) -> Value {
+    pub fn eval_arithmetic(left: Value, op: char, right: Value) -> Value {
         let left = left.as_num();
         let right = right.as_num();
         Value::Num(match op {
-            Arithmetic::Plus => left + right,
-            Arithmetic::Minus => left - right,
-            Arithmetic::Multiply => left * right,
-            Arithmetic::Divide => left / right,
+            '+' => left + right,
+            '-' => left - right,
+            '*' => left * right,
+            '/' => left / right,
+            _ => unreachable!(),
         })
     }
 }

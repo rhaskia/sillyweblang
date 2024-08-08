@@ -1,8 +1,9 @@
 use crate::span::{Span as Sp, Position};
-use crate::primitives::{ToGlyph, Glyph};
+use crate::primitives::{GlyphLoader, Glyph};
 
 pub fn lex(program: String) -> Vec<Sp<Token>> {
-    Lexer { program, index: 0, pos: Position::new(), tokens: vec![] }.lex()
+    let glyphs = GlyphLoader::setup();
+    Lexer { program, glyphs, index: 0, pos: Position::new(), tokens: vec![] }.lex()
 }
 
 #[derive(Debug, Clone)]
@@ -17,6 +18,7 @@ pub enum Token {
     Number(i64),
     Str(String),
     Var(String),
+    Color(String),
     Omega,
 }
 
@@ -34,6 +36,7 @@ struct Lexer {
     index: usize,
     tokens: Vec<Sp<Token>>,
     pos: Position,
+    glyphs: GlyphLoader,
 }
 
 impl Lexer {
@@ -48,8 +51,9 @@ impl Lexer {
                '{' => self.push(Token::CloseBrace),
                '"' => self.string(),
                '⍵' => self.push(Token::Omega),
+               '#' => self.color(),
                _ if ch.is_alphabetic() => self.name(ch),
-               _ if ch.is_glyph() => self.push(Token::Operator(ch.to_glyph())),
+               _ if self.glyphs.contains_key(&ch) => self.glyph(ch),
                _ if ch.is_numeric() => self.number(ch),
                _ => {},
            }
@@ -60,6 +64,22 @@ impl Lexer {
 
     pub fn push(&mut self, token: Token) {
        self.tokens.push(Sp::one(token, self.pos))
+    }
+
+    pub fn glyph(&mut self, ch: char) {
+        let token = self.glyphs.match_tok(ch);
+        self.push(Token::Operator(token));
+    }
+
+    pub fn color(&mut self) {
+        let mut color = String::new();
+        while let Some(ch) = self.peek() {
+            if !matches!(ch, 'a'..='f' | 'A'..='F' | '0'..='9') {
+                break
+            }
+            color.push(self.next().unwrap());
+        }
+        self.push(Token::Color(color))
     }
 
     pub fn name(&mut self, ch: char) {
